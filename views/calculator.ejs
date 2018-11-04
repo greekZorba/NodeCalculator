@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <title>계산기</title>
+
+</head>
+<body>
+    <div class="container bg-danger" style="height:100%">
+        
+                <div class="form-group">
+                    <input class="form-control" type="text" id="textBox" style="text-align:right; width:100%" placeholder="0" readonly/>
+                </div>
+                <div class="form-group" style="text-align:center">
+                    <button class="btn btn-primary" style="width:23%" value="7" onclick="typing('7')">7</button>
+                    <button class="btn btn-primary" style="width:23%" value="8" onclick="typing('8')">8</button>
+                    <button class="btn btn-primary" style="width:23%" value="9" onclick="typing('9')">9</button>
+                    <button class="btn btn-info" style="width:23%" value="+" onclick="typing('+')">+</button>
+                </div>
+                <div class="form-group" style="text-align:center">
+                    <button class="btn btn-primary" style="width:23%" value="4" onclick="typing('4')">4</button>
+                    <button class="btn btn-primary" style="width:23%" value="5" onclick="typing('5')">5</button>
+                    <button class="btn btn-primary" style="width:23%" value="6" onclick="typing('6')">6</button>
+                    <button class="btn btn-info" style="width:23%" value="-" onclick="typing('-')">-</button>
+                </div>
+                <div class="form-group" style="text-align:center">
+                    <button class="btn btn-primary" style="width:23%" value="1" onclick="typing('1')">1</button>
+                    <button class="btn btn-primary" style="width:23%" value="2" onclick="typing('2')">2</button>
+                    <button class="btn btn-primary" style="width:23%" value="3" onclick="typing('3')">3</button>
+                    <button class="btn btn-info" style="width:23%" value="*" onclick="typing('*')">X</button>
+                </div>
+                <div class="form-group" style="text-align:center">
+                    <button class="btn btn-primary" style="width:23%" value="0" onclick="typing('0')">0</button>
+                    <button class="btn btn-light" style="width:23%" id="clear">C</button>
+                    <button class="btn btn-warning" style="width:23%" id="calculation" value="=">=</button>
+                    <button class="btn btn-info" style="width:23%" value="/" onclick="typing('/')">/</button>
+                </div>
+        
+    </div> 
+    
+    <script>
+        var resetFlag = 'true' // =을 클릭하고 새로할 때는 새로운 값이 입력되게 하려고 'false'면 리셋을 시켜줘야함
+        
+        $(document).ready(function(){
+
+            $('#calculation').on("click", function(){
+                var parameter = $('#textBox').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/calculator/calculatorPop',
+                    data: {inputString : parameter},
+                    success: function(result){
+                        if(result.calculationOutput == '0'){
+                            $('#textBox').val('');
+                        }else{
+                            $('#textBox').val(result.calculationOutput);
+                            resetFlag = 'false';
+                        }
+                        
+                    },
+                    error: function(err){
+                        console.log('ajax error')
+                    }
+                })
+            })
+
+            $('#clear').on("click", function(){
+                $('#textBox').val('');
+            })
+
+            $(document).keydown(function(event){
+                
+                if(event.keyCode == '8'){
+                    var originText = $('#textBox').val();
+                    $('#textBox').val(originText.substring(0, originText.length-1));
+                }
+
+            })
+        })
+        
+        function typing(inputValue){
+            var originalText = $('#textBox').val();
+            
+            if(inputValue == '+' || inputValue == '-' || inputValue == '*' || inputValue == '/'){ // 연속된 기호를 못 붙이기 위함
+               
+                var isNumber = parseInt(originalText.charAt(originalText.length-1));
+                if(isNaN(isNumber)){
+                    return;
+                }
+            }    
+            if(resetFlag== 'false'){ // '='을 클릭하고 값을 리셋해주기 위해서
+                resetFlag = 'true';
+
+                if(!isNaN(parseInt(inputValue))){ // 숫자의 경우 리셋, 기호가 들어오면 계산 진행
+                    $('#textBox').val(inputValue);
+                    return;
+                }
+                
+            }  
+            $('#textBox').val(originalText+inputValue);
+        }
+    
+    </script>
+</body>
+</html>
