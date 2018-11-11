@@ -19,7 +19,9 @@ router.post('/calculatorPop', function(req, res){
     for(var i=0; i<inputText.length; i++){
         
         var oneCharater = inputText.charAt(i);
-        if(isNumber(oneCharater) == 'true'){ // 입력된 값이 숫자라면 더해줌
+        if(isNumber(oneCharater) == 'true' || (i== 0 && oneCharater == '-')){ // 입력된 값이 숫자라면 더해줌
+                                                // 아니면 첫번째 숫자 결과값이 음수일 경우,
+                                                
             appendNumber += oneCharater; // 123으로 넘어왔다면 '1'+'2'+'3'으로 만들어줌
         }else{
             calArray[arrayCount++] = appendNumber; // 연산 기호가 나왔다면 앞의 appendNumber을 대입
